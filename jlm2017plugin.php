@@ -152,31 +152,37 @@ class JLM2017_Plugin
              ],
              'httpversion' => '1.1',
              'user-agent' => '',
-         ]);
-            if ($response['headers']['status'] !== '400 Bad Request') {
-                $jlm2017_form_errors = $jlm2017_form_errors.'email,';
-            }
-            if (!preg_match('/^[0-9]{5}$/', $jlm2017_form_user_zipcode)) {
-                $jlm2017_form_errors = $jlm2017_form_errors.'zipcode,';
-            }
-            if ($jlm2017_form_errors === '') {
-                //  $url = 'https://'.$options['jlm2017_registration_nation_slug'].
-           //      '.nationbuilder.com/api/v1/people?access_token='.
-           //      $options['jlm2017_registration_api_key'];
+            ]);
+            if ($response['headers']['status'] === '400 Bad Request'
+                || $response['headers']['status'] === '200 OK') {
 
-           //  $response = wp_remote_post( $url, [
-           //      'headers' => [
-           //          'Accept' => 'application/json',
-           //          'Content-type' => 'application/json'
-           //      ],
-           //      'httpversion' => '1.1',
-           //      'user-agent' => '',
-           //      'body' => '{"person":{"email":"'.$jlm2017_form_user_email.'", "home_address":{"zip":"'. $jlm2017_form_user_zipcode .'"}}}',
-           //  ]);
-           // //  var_dump($options['jlm2017_registration_url_redirect']);
-            if (wp_redirect($options['jlm2017_registration_url_redirect'])) {
-                exit();
-            }
+                if ($response['headers']['status'] !== '400 Bad Request') {
+                    $jlm2017_form_errors = $jlm2017_form_errors.'email,';
+                }
+                if (!preg_match('/^[0-9]{5}$/', $jlm2017_form_user_zipcode)) {
+                    $jlm2017_form_errors = $jlm2017_form_errors.'zipcode,';
+                }
+                if ($jlm2017_form_errors === '') {
+                  $url = 'https://'.$options['jlm2017_registration_nation_slug'].
+                  '.nationbuilder.com/api/v1/people?access_token='.
+                  $options['jlm2017_registration_api_key'];
+
+                  $response = wp_remote_post( $url, [
+                      'headers' => [
+                          'Accept' => 'application/json',
+                          'Content-type' => 'application/json'
+                      ],
+                      'httpversion' => '1.1',
+                      'user-agent' => '',
+                      'body' => '{"person":{"email":"'.$jlm2017_form_user_email.'", "home_address":{"zip":"'. $jlm2017_form_user_zipcode .'"}}}',
+                  ]);
+                  if (wp_redirect($options['jlm2017_registration_url_redirect'])) {
+                      exit();
+                  }
+                  else {
+                    $jlm2017_form_errors = 'redirect';
+                  }
+                }
             }
         }
     }
