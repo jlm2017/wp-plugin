@@ -1,5 +1,5 @@
 {
-  "name": "jlm2017/jlm2017-plugin",
+  "name": "jlm2017/jlm2017-wordpress-addons",
   "type": "wordpress-plugin",
   "require": {
     "php": ">=5.3.2",
@@ -14,7 +14,7 @@
   "authors": [
     {
       "name": "SIMON Florian",
-      "email": "fsimondev@gmail.com",
+      "email": "fsimondev@gmail.com"
     }
   ]
 }
