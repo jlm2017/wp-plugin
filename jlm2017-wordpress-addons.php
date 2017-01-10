@@ -82,11 +82,31 @@ class JLM2017_Plugin
 
     public function jlm2017_registration_api_key_render()
     {
-        $options = get_option('jlm2017_registration_settings');
-        ?>
-            <input type="text" name="jlm2017_registration_settings[jlm2017_registration_api_key]"
-            value="<?= $options['jlm2017_registration_api_key']; ?>">
+        $options = get_option('jlm2017_registration_settings'); ?>
+            <input type='text'
+            name='jlm2017_registration_settings[jlm2017_registration_api_key]'
+            value='<?php echo $options['jlm2017_registration_api_key']; ?>'>
         <?php
+        try {
+            $response = wp_remote_get('https://plp.nationbuilder.com/api/v1/sites/plp/pages/events?limit=10&access_token='.$options['jlm2017_registration_api_key'], [
+          'headers' => [
+          'Accept' => 'application/json',
+          'Content-type' => 'application/json',
+          ],
+          'httpversion' => '1.1',
+          'user-agent' => '',
+          ]);
+            if (is_wp_error($response)) {
+                ?>
+                <p style="color: red;">Vérification de l'API Key échouée, veuillez réessayer plus tard</p>
+                <?php
+            } elseif ($response['headers']['status'] === '401 Unauthorized') {
+                ?>
+                <p style="color: red;">API Key invalide</p>
+                <?php
+            }
+        } catch (Exception $e) {
+        }
     }
 
     public function jlm2017_registration_nation_slug_render()
@@ -155,7 +175,9 @@ class JLM2017_Plugin
              'httpversion' => '1.1',
              'user-agent' => '',
             ]);
-            if ($response['headers']['status'] === '400 Bad Request'
+            if (is_wp_error($response)) {
+                $jlm2017_form_errors = $jlm2017_form_errors.'redirect,';
+            } elseif ($response['headers']['status'] === '400 Bad Request'
                 || $response['headers']['status'] === '200 OK') {
                 if ($response['headers']['status'] !== '400 Bad Request') {
                     $jlm2017_form_errors = $jlm2017_form_errors.'email,';
@@ -177,7 +199,9 @@ class JLM2017_Plugin
                       'user-agent' => '',
                       'body' => '{"person":{"email":"'.$jlm2017_form_user_email.'", "home_address":{"zip":"'.$jlm2017_form_user_zipcode.'"}}}',
                   ]);
-                    if (wp_redirect($options['jlm2017_registration_url_redirect'])) {
+                    if (is_wp_error($response)) {
+                        $jlm2017_form_errors = $jlm2017_form_errors.'redirect,';
+                    } elseif (wp_redirect($options['jlm2017_registration_url_redirect'])) {
                         exit();
                     } else {
                         $jlm2017_form_errors = 'redirect';
