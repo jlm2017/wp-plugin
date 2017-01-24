@@ -57,7 +57,7 @@ class JLM2017_Plugin
 
         add_settings_field(
             'jlm2017_registration_api_key',
-            __('API Key', 'JLM2017 registration'),
+            __('API Key NationBuilder', 'JLM2017 registration'),
             [$this, 'jlm2017_registration_api_key_render'],
             'jlm2017_registration_settings_page',
             'jlm2017_registration_plugin_page_section'
@@ -78,14 +78,21 @@ class JLM2017_Plugin
             'jlm2017_registration_settings_page',
             'jlm2017_registration_plugin_page_section'
         );
+        add_settings_field(
+            'jlm2017_registration_api_key_jlm2017',
+            __('API Key api.jlm2017.fr', 'JLM2017 registration'),
+            [$this, 'jlm2017_registration_api_key_jlm2017_render'],
+            'jlm2017_registration_settings_page',
+            'jlm2017_registration_plugin_page_section'
+        );
     }
 
     public function jlm2017_registration_api_key_render()
     {
         $options = get_option('jlm2017_registration_settings'); ?>
-            <input type='text'
-            name='jlm2017_registration_settings[jlm2017_registration_api_key]'
-            value='<?php echo $options['jlm2017_registration_api_key']; ?>'>
+            <input type="text"
+            name="jlm2017_registration_settings[jlm2017_registration_api_key]"
+            value="<?= $options['jlm2017_registration_api_key']; ?>">
         <?php
         try {
             $response = wp_remote_get('https://plp.nationbuilder.com/api/v1/sites/plp/pages/events?limit=10&access_token='.$options['jlm2017_registration_api_key'], [
@@ -106,6 +113,9 @@ class JLM2017_Plugin
                 <?php
             }
         } catch (Exception $e) {
+          ?>
+              <p style="color: red;">Vérification de l'API Key échouée, veuillez réessayer plus tard</p>
+          <?php
         }
     }
 
@@ -115,7 +125,7 @@ class JLM2017_Plugin
         ?>
             <input type="text"
             name="jlm2017_registration_settings[jlm2017_registration_nation_slug]"
-            value="<?= $options['jlm2017_registration_nation_slug']; ?>"
+            value="<?= $options['jlm2017_registration_nation_slug']; ?>">
         <?php
     }
 
@@ -127,6 +137,42 @@ class JLM2017_Plugin
             name="jlm2017_registration_settings[jlm2017_registration_url_redirect]"
             value="<?= $options['jlm2017_registration_url_redirect']; ?>">
         <?php
+    }
+
+    public function jlm2017_registration_api_key_jlm2017_render()
+    {
+        $options = get_option('jlm2017_registration_settings'); ?>
+            <input type="text"
+            name="jlm2017_registration_settings[jlm2017_registration_api_key_jlm2017]"
+            value="<?= $options['jlm2017_registration_api_key_jlm2017']; ?>">
+        <?php
+        try {
+            $options = get_option('jlm2017_registration_settings');
+            $url = 'https://api.jlm2017.fr/people';
+            $response = wp_remote_get($url, [
+              'timeout'     => 300,
+              'headers' => [
+                'Authorization' => 'Basic '.base64_encode($options['jlm2017_registration_api_key_jlm2017'].':'),
+                'Accept' => 'application/json',
+                'Content-type' => 'application/json',
+              ],
+              'httpversion' => '1.1',
+              'user-agent' => '',
+            ]);
+            if (is_wp_error($response)) {
+                ?>
+            <p style="color: red;">Vérification de l'API Key échouée, veuillez réessayer plus tard</p>
+            <?php
+          } elseif ($response['response']['code'] === 401) {
+                ?>
+              <p style="color: red;">API Key invalide</p>
+              <?php
+            }
+        } catch (Exception $e) {
+          ?>
+              <p style="color: red;">Vérification de l'API Key échouée, veuillez réessayer plus tard</p>
+          <?php
+        }
     }
 
     public function jlm2017_registration_settings_section_callback()
@@ -208,10 +254,43 @@ class JLM2017_Plugin
                     }
                 }
             }
-            elseif ($response['response']['code'] === 401) {
-              $jlm2017_form_errors = 'redirect';
-            }
         }
+    }
+
+    static function get_people_count() {
+      if (!get_transient('people_count_jlm2017') || !get_transient('save_date_jlm2017')
+          || (current_time('timestamp') - get_transient('save_date_jlm2017')) > 30) {
+        $options = get_option('jlm2017_registration_settings');
+        $url = 'https://api.jlm2017.fr/people';
+        try {
+          $response = wp_remote_get($url, [
+            'timeout' => 300,
+            'headers' => [
+              'Authorization' => 'Basic '.base64_encode($options['jlm2017_registration_api_key_jlm2017'].':'),
+              'Accept' => 'application/json',
+              'Content-type' => 'application/json',
+            ],
+            'httpversion' => '1.1',
+            'user-agent' => '',
+          ]);
+          if (!is_wp_error($response) && isset(json_decode($response['body'])->_meta) && json_decode($response['body'])->_meta->total !== NULL && (current_time('timestamp') - JLM2017_Plugin::get_saved_date()) > 300) {
+            set_transient( 'people_count_jlm2017', json_decode($response['body'])->_meta->total, 0 );
+            set_transient( 'save_date_jlm2017', current_time('timestamp'), 0 );
+
+            return json_decode($response['body'])->_meta->total;
+          }
+          else {
+            error_log('error on request, please check api key of bdd in the settings of jlm2017 wordpress plugin');
+          }
+        } catch (Exception $e) {
+          error_log('error on request, here is the logs:\n'.$e->getMessage());
+        }
+      }
+      return get_transient('people_count_jlm2017');
+    }
+
+    static function get_saved_date() {
+      return get_transient('save_date_jlm2017');
     }
 }
 
