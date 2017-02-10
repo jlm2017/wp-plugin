@@ -208,6 +208,9 @@ class JLM2017_Plugin
                     }
                 }
             }
+            elseif ($response['response']['code'] === 401) {
+              $jlm2017_form_errors = 'redirect';
+            }
         }
     }
 }
