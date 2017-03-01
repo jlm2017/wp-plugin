@@ -38,7 +38,7 @@ class JLM2017_Plugin
     {
         global $jlm2017_form_signup_errors;
         global $jlm2017_form_signup_email;
-        global $jlm2017_form_usignup_zipcode;
+        global $jlm2017_form_signup_zipcode;
 
         $jlm2017_form_signup_errors = array();
 
@@ -99,7 +99,7 @@ class JLM2017_Plugin
         }
 
         // Address is not in the database : proceed to registration
-        if ($response['headers']['status'] !== '400 Bad Request') {
+        if ($response['headers']['status'] === '400 Bad Request') {
             $url = 'https://'.$options['nb_slug'].
                 '.nationbuilder.com/api/v1/people?access_token='.
                 $options['nb_api_key'];
