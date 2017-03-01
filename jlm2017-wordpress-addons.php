@@ -72,55 +72,36 @@ class JLM2017_Plugin
 
         $options = get_option('jlm2017_settings');
 
-        // Test if email exists
         $url = 'https://'.$options['nb_slug'].
-         '.nationbuilder.com/api/v1/people/match?email='.$jlm2017_form_signup_email.'&access_token='.
-         $options['nb_api_key'];
+            '.nationbuilder.com/api/v1/people?access_token='.
+            $options['nb_api_key'];
 
-        $response = wp_remote_get($url, [
+        $response = wp_remote_post($url, [
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-type' => 'application/json',
             ],
             'httpversion' => '1.1',
             'user-agent' => '',
+            'body' => '{"person":{"email":"'.$jlm2017_form_signup_email.'", "home_address":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}}',
         ]);
 
-        if (is_wp_error($response)) {
-            $jlm2017_form_signup_errors['form'] = 'Oups, une erreure est survenue, veuillez réessayer plus tard&nbsp;!';
+        if (is_wp_error($response) || !in_array($response['headers']['status'], ['409 Conflict', '201 Created'])) {
+            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
 
             return;
         }
 
-        if ($response['headers']['status'] === '200 OK') {
+        if ($response['headers']['status'] === '409 Conflict') {
             $jlm2017_form_signup_errors['email'] = 'Adresse email déjà existante dans la base de donnée.';
 
             return;
         }
 
-        // Address is not in the database : proceed to registration
-        if ($response['headers']['status'] === '400 Bad Request') {
-            $url = 'https://'.$options['nb_slug'].
-                '.nationbuilder.com/api/v1/people?access_token='.
-                $options['nb_api_key'];
-
-            $response = wp_remote_post($url, [
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Content-type' => 'application/json',
-                ],
-                'httpversion' => '1.1',
-                'user-agent' => '',
-                'body' => '{"person":{"email":"'.$jlm2017_form_signup_email.'", "home_address":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}}',
-            ]);
-
-            if (is_wp_error($response)) {
-                $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
-            } elseif (wp_redirect($options['registration_redirect_url'])) {
-                exit();
-            } else {
-                $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
-            }
+        if (wp_redirect($options['registration_redirect_url'])) {
+            exit();
+        } else {
+            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
         }
     }
 
