@@ -206,7 +206,7 @@ class JLM2017_Plugin_Admin
 
     public function registration_mail_url_render()
     {
-        $options = get_option('jlm2017'); ?>
+        $options = get_option('jlm2017_settings'); ?>
         <input type="text"
             name="jlm2017_settings[registration_mail_url]"
             value="<?= $options['registration_mail_url']; ?>">
