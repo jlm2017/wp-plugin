@@ -135,24 +135,26 @@ class JLM2017_Plugin
         $url = 'https://api.jlm2017.fr/people';
         try {
             $response = wp_remote_get($url, [
-                'timeout' => 300,
+                'timeout' => 5,
                 'headers' => [
                     'Authorization' => 'Basic '.base64_encode($options['api_key'].':'),
                     'Accept' => 'application/json',
                 ],
             ]);
 
-            if (!is_wp_error($response) && isset(json_decode($response['body'])->_meta) && json_decode($response['body'])->_meta->total !== null && (current_time('timestamp') - self::get_saved_date()) > 300) {
+            if (!is_wp_error($response) && isset(json_decode($response['body'])->_meta) && json_decode($response['body'])->_meta->total !== null) {
                 set_transient('jlm2017_people_count', json_decode($response['body'])->_meta->total, 0);
                 set_transient('jlm2017_people_count_date', current_time('timestamp'), 0);
 
                 return json_decode($response['body'])->_meta->total;
-            } else {
-                error_log('Error on request, please check API keys in the settings of JLM2017 wordpress plugin.');
             }
+
+            error_log('Error on request, please check API keys in the settings of JLM2017 wordpress plugin.');
         } catch (Exception $e) {
             error_log('Error on request: '.$e->getMessage());
         }
+
+        return get_transient('jlm2017_people_count');
     }
 
     public static function get_saved_date()
