@@ -25,6 +25,8 @@ class JLM2017_Plugin
         add_action('init', [$this, 'handle_registration_form']);
 
         add_action('init', [$this, 'admin_init']);
+
+        add_action('widgets_init', [$this, 'widgets_init']);
     }
 
     public function admin_init()
@@ -32,6 +34,12 @@ class JLM2017_Plugin
         require_once dirname(__FILE__).'/includes/admin.php';
 
         new JLM2017_Plugin_Admin();
+    }
+
+    public function widgets_init()
+    {
+        require_once dirname(__FILE__).'/includes/widgets/registration_form.php';
+        register_widget( 'Fi_Registration_Form' );
     }
 
     public function handle_registration_form()
