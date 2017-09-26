@@ -1,3 +1,3 @@
 # wp-plugin
 
-Provide functionalities required for JLM2017 Wordpress theme.
+Fourni les fonctionnalitées supplémentaires pour le thème Wordpress de la France insoumise.
