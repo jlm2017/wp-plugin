@@ -1,9 +1,9 @@
 <?php
 /*
-    Plugin Name: JLM 2017 plugin
-    Description: additional fonctionalities for JLM 2017.
-    Author: Florian SIMON
-    License: GPL-2.0
+    Plugin Name: FI Plugin
+    Description: additional fonctionalities for FI
+    Author: Florian SIMON, Guillaume Royer
+    License: GPL-3.0
 */
 
 /**
@@ -72,28 +72,26 @@ class JLM2017_Plugin
 
         $options = get_option('jlm2017_settings');
 
-        $url = 'https://'.$options['nb_slug'].
-            '.nationbuilder.com/api/v1/people?access_token='.
-            $options['nb_api_key'];
+        $url = 'https://api.lafranceinsoumise.fr/legacy/people/';
 
         $response = wp_remote_post($url, [
             'headers' => [
-                'Accept' => 'application/json',
                 'Content-type' => 'application/json',
+                'Authorization' => 'Basic '.base64_encode($options['api_id'].':'.$options['api_key']),
             ],
-            'httpversion' => '1.1',
-            'user-agent' => '',
-            'body' => '{"person":{"email":"'.$jlm2017_form_signup_email.'", "home_address":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}}',
+            'body' => '{"email":"'.$jlm2017_form_signup_email.'", "location":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}',
         ]);
 
-        if (is_wp_error($response) || !in_array($response['headers']['status'], ['409 Conflict', '201 Created'])) {
-            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
+        if (!is_wp_error($response) && $response['response']['code'] === 422) {
+            if (strpos($response['body'], 'email')) {
+                $jlm2017_form_signup_errors['email'] = 'Adresse email déjà existante dans la base de donnée.';
+            }
 
             return;
         }
 
-        if ($response['headers']['status'] === '409 Conflict') {
-            $jlm2017_form_signup_errors['email'] = 'Adresse email déjà existante dans la base de donnée.';
+        if (is_wp_error($response) || !in_array($response['response']['code'], [422, 201])) {
+            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
 
             return;
         }
@@ -113,7 +111,7 @@ class JLM2017_Plugin
             $_REQUEST['jlm2017_form_signup_email'],
             'Merci pour votre appui !',
             $response['body'],
-            ['From: Jean-Luc Mélenchon <nepasrepondre@jlm2017.fr>', 'Content-Type: text/html; charset=UTF-8']
+            ['From: La France insoumise <nepasrepondre@lafranceinsoumise.fr>', 'Content-Type: text/html; charset=UTF-8']
         );
 
         if (wp_redirect($options['registration_redirect_url'])) {
@@ -121,45 +119,6 @@ class JLM2017_Plugin
         } else {
             $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
         }
-    }
-
-    public static function get_people_count()
-    {
-        if (get_transient('jlm2017_people_count') && get_transient('jlm2017_people_count_date') &&
-            (current_time('timestamp') - get_transient('jlm2017_people_count_date')) < 30) {
-
-            return get_transient('jlm2017_people_count');
-        }
-
-        $options = get_option('jlm2017_settings');
-        $url = 'https://api.jlm2017.fr/people';
-        try {
-            $response = wp_remote_get($url, [
-                'timeout' => 5,
-                'headers' => [
-                    'Authorization' => 'Basic '.base64_encode($options['api_key'].':'),
-                    'Accept' => 'application/json',
-                ],
-            ]);
-
-            if (!is_wp_error($response) && isset(json_decode($response['body'])->_meta) && json_decode($response['body'])->_meta->total !== null) {
-                set_transient('jlm2017_people_count', json_decode($response['body'])->_meta->total, 0);
-                set_transient('jlm2017_people_count_date', current_time('timestamp'), 0);
-
-                return json_decode($response['body'])->_meta->total;
-            }
-
-            error_log('Error on request, please check API keys in the settings of JLM2017 wordpress plugin.');
-        } catch (Exception $e) {
-            error_log('Error on request: '.$e->getMessage());
-        }
-
-        return get_transient('jlm2017_people_count');
-    }
-
-    public static function get_saved_date()
-    {
-        return get_transient('jlm2017_people_count_date');
     }
 }
 
