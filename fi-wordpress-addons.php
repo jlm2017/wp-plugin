@@ -72,7 +72,7 @@ class FI_Plugin
             return;
         }
 
-        $options = get_option('jlm2017_settings');
+        $options = get_option('fi_settings');
 
         $url = 'https://api.lafranceinsoumise.fr/legacy/people/';
 
