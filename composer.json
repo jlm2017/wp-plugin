@@ -1,5 +1,5 @@
 {
-  "name": "jlm2017/jlm2017-wordpress-addons",
+  "name": "fi/fi-wordpress-addons",
   "type": "wordpress-plugin",
   "require": {
     "php": ">=5.3.2",
@@ -15,6 +15,10 @@
     {
       "name": "SIMON Florian",
       "email": "fsimondev@gmail.com"
+    },
+    {
+      "name": "Guillaume Royer",
+      "email": "site@lafranceinsoumise.fr"
     }
   ]
 }

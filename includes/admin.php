@@ -1,6 +1,6 @@
 <?php
 
-class JLM2017_Plugin_Admin
+class FI_Plugin_Admin
 {
     public function __construct()
     {
@@ -14,10 +14,10 @@ class JLM2017_Plugin_Admin
     public function add_admin_menu()
     {
         add_options_page(
-            'FI plugin',
-            'FI plugin',
+            'FI add-ons',
+            'FI add-ons',
             'manage_options',
-            'JLM2017',
+            'FI',
             [$this, 'options_page']
         );
     }
@@ -28,9 +28,9 @@ class JLM2017_Plugin_Admin
         <h1>France insoumise</h1>
         <form action="options.php" method="post">
             <?php
-            settings_fields('jlm2017_settings_page');
-        do_settings_sections('jlm2017_settings_page');
-        submit_button(); ?>
+            settings_fields('fi_settings_page');
+            do_settings_sections('fi_settings_page');
+            submit_button(); ?>
         </form>
         <?php
 
@@ -38,67 +38,85 @@ class JLM2017_Plugin_Admin
 
     public function settings_init()
     {
-        register_setting('jlm2017_settings_page', 'jlm2017_settings');
+        register_setting('fi_settings_page', 'fi_settings');
 
         add_settings_section(
-            'jlm2017_api_section',
-            __('api.lafranceinsoumise.fr settings', 'JLM2017'),
+            'fi_api_section',
+            __('Identifiants api.lafranceinsoumise.fr', 'FI'),
             [$this, 'api_section_callback'],
-            'jlm2017_settings_page'
+            'fi_settings_page'
         );
 
         add_settings_section(
-            'jlm2017_registration_section',
-            __('Registration settings', 'JLM2017'),
+            'fi_registration_section',
+            __('Inscription', 'FI'),
             [$this, 'registration_section_callback'],
-            'jlm2017_settings_page'
+            'fi_settings_page'
+        );
+
+        add_settings_section(
+            'fi_woocommerce_notify_section',
+            __('Woocommerce', 'FI'),
+            [$this, 'woocommerce_notify_section_callback'],
+            'fi_settings_page'
         );
     }
 
     public function api_section_callback()
     {
         add_settings_field(
-            'jlm2017_api_id',
-            __('Client id api.lafranceinsoumise.fr', 'JLM2017'),
+            'fi_api_id',
+            __('Client id api.lafranceinsoumise.fr', 'FI'),
             [$this, 'api_id_render'],
-            'jlm2017_settings_page',
-            'jlm2017_api_section'
+            'fi_settings_page',
+            'fi_api_section'
         );
 
         add_settings_field(
-            'jlm2017_api_key',
-            __('Client secret api.lafranceinsoumise.fr', 'JLM2017'),
+            'fi_api_key',
+            __('Client secret api.lafranceinsoumise.fr', 'FI'),
             [$this, 'api_key_render'],
-            'jlm2017_settings_page',
-            'jlm2017_api_section'
+            'fi_settings_page',
+            'fi_api_section'
         );
     }
 
     public function registration_section_callback()
     {
         add_settings_field(
-            'jlm2017_registration_redirect_url',
-            __('URL de redirection après inscription', 'JLM2017'),
+            'fi_registration_redirect_url',
+            __('URL de redirection après inscription', 'FI'),
             [$this, 'registration_redirect_url_render'],
-            'jlm2017_settings_page',
-            'jlm2017_registration_section'
+            'fi_settings_page',
+            'fi_registration_section'
         );
 
         add_settings_field(
-            'jlm2017_registration_mail_url',
-            __('URL du mail de remerciement', 'JLM2017'),
+            'fi_registration_mail_url',
+            __('URL du mail de remerciement', 'FI'),
             [$this, 'registration_mail_url_render'],
-            'jlm2017_settings_page',
-            'jlm2017_registration_section'
+            'fi_settings_page',
+            'fi_registration_section'
+        );
+    }
+
+    public function woocommerce_notify_section_callback()
+    {
+        add_settings_field(
+            'fi_woocommerce_notify_tag',
+            __('Tag à donner lors de la complétion d\'une commande', 'FI'),
+            [$this, 'woocommerce_notify_tag_render'],
+            'fi_settings_page',
+            'fi_woocommerce_notify_section'
         );
     }
 
     public function api_id_render()
     {
-        $options = get_option('jlm2017_settings'); ?>
+        $options = get_option('fi_settings'); ?>
 
         <input type="text"
-            name="jlm2017_settings[api_id]"
+            name="fi_settings[api_id]"
             value="<?= isset($options['api_id']) ? $options['api_id'] : ''; ?>">
 
         <?php
@@ -106,15 +124,15 @@ class JLM2017_Plugin_Admin
 
     public function api_key_render()
     {
-        $options = get_option('jlm2017_settings'); ?>
+        $options = get_option('fi_settings'); ?>
 
         <input type="text"
-            name="jlm2017_settings[api_key]"
-            value="<?= $options['api_key']; ?>">
+            name="fi_settings[api_key]"
+            value="<?= isset($options['api_key']) ? $options['api_key'] : ''; ?>">
 
         <?php
         try {
-            $options = get_option('jlm2017_settings');
+            $options = get_option('fi_settings');
             $url = 'https://api.lafranceinsoumise.fr/legacy/people/';
             $response = wp_remote_get($url, [
                 'timeout' => 300,
@@ -144,21 +162,30 @@ class JLM2017_Plugin_Admin
 
     public function registration_redirect_url_render()
     {
-        $options = get_option('jlm2017_settings'); ?>
+        $options = get_option('fi_settings'); ?>
         <input type="text"
-            name="jlm2017_settings[registration_redirect_url]"
-            value="<?= $options['registration_redirect_url']; ?>">
+            name="fi_settings[registration_redirect_url]"
+            value="<?= isset($options['registration_redirect_url']) ? $options['registration_redirect_url'] : ''; ?>">
         <?php
 
     }
 
     public function registration_mail_url_render()
     {
-        $options = get_option('jlm2017_settings'); ?>
+        $options = get_option('fi_settings'); ?>
         <input type="text"
-            name="jlm2017_settings[registration_mail_url]"
-            value="<?= $options['registration_mail_url']; ?>">
+            name="fi_settings[registration_mail_url]"
+            value="<?= isset($options['registration_mail_url']) ? $options['registration_mail_url'] : ''; ?>">
         <?php
 
+    }
+
+    public function woocommerce_notify_tag_render()
+    {
+        $options = get_option('fi_settings'); ?>
+            <input type='text'
+            name='fi_settings[woocommerce_notify_tag]'
+            value='<?php echo isset($options['woocommerce_notify_tag']) ? $options['woocommerce_notify_tag'] : ''; ?>'>
+            <?php
     }
 }
