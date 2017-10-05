@@ -74,7 +74,7 @@ class FI_Plugin
 
         $options = get_option('fi_settings');
 
-        $url = 'https://api.lafranceinsoumise.fr/legacy/people/';
+        $url = 'https://api.lafranceinsoumise.fr/legacy/people/subscribe';
 
         $response = wp_remote_post($url, [
             'headers' => [
@@ -98,24 +98,6 @@ class FI_Plugin
 
             return;
         }
-
-        $response = wp_remote_get(add_query_arg(
-            [
-                'EMAIL' => $_REQUEST['jlm2017_form_signup_email']
-            ],
-            $options['registration_mail_url']
-        ));
-
-        if (is_wp_error($response)) {
-            error_log('Cannot get signup email content.');
-        }
-
-        wp_mail(
-            $_REQUEST['jlm2017_form_signup_email'],
-            'Merci pour votre appui !',
-            $response['body'],
-            ['From: La France insoumise <nepasrepondre@lafranceinsoumise.fr>', 'Content-Type: text/html; charset=UTF-8']
-        );
 
         if (wp_redirect($options['registration_redirect_url'])) {
             exit();
