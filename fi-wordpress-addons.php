@@ -27,6 +27,9 @@ class FI_Plugin
         // Woocommerce
         // When status got completed
         add_action('woocommerce_order_status_completed', [$this, 'on_order_completed'], 10, 2);
+
+        // When itemm is added
+        add_action('woocommerce_check_cart_items', [$this, 'check_cart_weight']);
     }
 
     public function admin_init()
@@ -147,6 +150,27 @@ class FI_Plugin
             'method' => 'PATCH',
             'body' => '{"tags": ["'.$options['woocommerce_notify_tag'].'"]}',
         ]);
+    }
+
+    /**
+     * Check cart weight is bellow 24
+     *
+     * @return [type] [description]
+     */
+    public function check_cart_weight() {
+        global $woocommerce;
+        $weight = $woocommerce->cart->cart_contents_weight;
+
+        if ($weight > 26) {
+            wc_add_notice(
+                sprintf(__('Vous avez %s kg dans votre commande. Le maximum est de 26 kg.', 'woocommerce'), $weight),
+                'error'
+            );
+
+            return false;
+        }
+
+        return true;
     }
 }
 
