@@ -25,11 +25,16 @@ class FI_Plugin
         add_action('init', [$this, 'admin_init']);
 
         // Woocommerce
+        add_action('woocommerce_loaded',[$this, 'remove_woocommerce_filters']);
+
         // When status got completed
         add_action('woocommerce_order_status_completed', [$this, 'on_order_completed'], 10, 2);
 
         // When itemm is added
         add_action('woocommerce_check_cart_items', [$this, 'check_cart_weight']);
+
+        // Check code
+        add_action('woocommerce_coupon_code', [$this, 'check_coupon_code'], 20);
     }
 
     public function admin_init()
@@ -37,6 +42,12 @@ class FI_Plugin
         require_once dirname(__FILE__).'/includes/admin.php';
 
         new FI_Plugin_Admin();
+    }
+
+    public function remove_woocommerce_filters()
+    {
+        // Make Woocommerce code case sensitive
+        remove_filter('woocommerce_coupon_code', 'wc_strtolower');
     }
 
     public function handle_registration_form()
@@ -171,6 +182,58 @@ class FI_Plugin
         }
 
         return true;
+    }
+
+    public function check_coupon_code($code)
+    {
+        $options = get_option('fi_settings');
+
+        if (strlen($code) !== 14) {
+            return $code;
+        }
+
+        if (wc_get_coupon_id_by_code($code)) {
+            return $code;
+        }
+
+        if (!wc_get_coupon_id_by_code($options['woocommerce_coupon_code'])) {
+            return $code;
+        }
+
+        $bytes = base64_decode(substr($code, 0, 2).'A=');
+        $days = ord($bytes[0]) + ord($bytes[1])*16;
+        $date = (new Datetime('2017-01-01'))->add(new DateInterval('P'.$days.'D'));
+
+        $partToSign = substr($code, 0, 8);
+        $sig = substr(str_replace(['+', '/'], ['-', '_'], base64_encode(
+            hash_hmac('sha1', substr($code, 0, 8), $options['woocommerce_coupon_key'], true)
+        )), 0, 6);
+
+        if (hash_equals($sig, substr($code, 8))) {
+            $modelCouponId = (wc_get_coupon_id_by_code($options['woocommerce_coupon_code']));
+            $meta = array_filter(get_post_meta($modelCouponId, '', true), function($key) {
+                return ($key[0] !== '_');
+            }, ARRAY_FILTER_USE_KEY);
+            $meta = array_map(function($value) {
+                if (is_array($value)) return $value[0];
+            }, $meta);
+
+            $meta['date_expires'] = $date->getTimestamp();
+            $meta['usage_count'] = '0';
+
+            $newCoupon = [
+                'post_author' => 1,
+                'post_title' => $code,
+                'post_excerpt' => __('Coupon de groupe d\'action autogénéré.'),
+                'post_type' => 'shop_coupon',
+                'post_status' => 'publish',
+                'meta_input' => $meta,
+            ];
+
+            wp_insert_post($newCoupon);
+        }
+
+        return $code;
     }
 }
 

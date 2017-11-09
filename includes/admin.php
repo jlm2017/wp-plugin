@@ -55,9 +55,9 @@ class FI_Plugin_Admin
         );
 
         add_settings_section(
-            'fi_woocommerce_notify_section',
+            'fi_woocommerce_section',
             __('Woocommerce', 'FI'),
-            [$this, 'woocommerce_notify_section_callback'],
+            [$this, 'woocommerce_callback'],
             'fi_settings_page'
         );
     }
@@ -100,14 +100,30 @@ class FI_Plugin_Admin
         );
     }
 
-    public function woocommerce_notify_section_callback()
+    public function woocommerce_callback()
     {
         add_settings_field(
             'fi_woocommerce_notify_tag',
             __('Tag à donner lors de la complétion d\'une commande', 'FI'),
             [$this, 'woocommerce_notify_tag_render'],
             'fi_settings_page',
-            'fi_woocommerce_notify_section'
+            'fi_woocommerce_section'
+        );
+
+        add_settings_field(
+            'fi_woocommerce_coupon_key',
+            __('Clé secrete pour la génération des coupons', 'FI'),
+            [$this, 'woocommerce_coupon_key_render'],
+            'fi_settings_page',
+            'fi_woocommerce_section'
+        );
+
+        add_settings_field(
+            'fi_woocommerce_coupon_code',
+            __('Coupon à cloner', 'FI'),
+            [$this, 'woocommerce_coupon_code_render'],
+            'fi_settings_page',
+            'fi_woocommerce_section'
         );
     }
 
@@ -126,7 +142,7 @@ class FI_Plugin_Admin
     {
         $options = get_option('fi_settings'); ?>
 
-        <input type="text"
+        <input type="password"
             name="fi_settings[api_key]"
             value="<?= isset($options['api_key']) ? $options['api_key'] : ''; ?>">
 
@@ -183,9 +199,32 @@ class FI_Plugin_Admin
     public function woocommerce_notify_tag_render()
     {
         $options = get_option('fi_settings'); ?>
-            <input type='text'
-            name='fi_settings[woocommerce_notify_tag]'
-            value='<?php echo isset($options['woocommerce_notify_tag']) ? $options['woocommerce_notify_tag'] : ''; ?>'>
+            <input type="text"
+            name="fi_settings[woocommerce_notify_tag]"
+            value="<?php echo isset($options['woocommerce_notify_tag']) ? $options['woocommerce_notify_tag'] : ''; ?>">
+            <?php
+    }
+
+    public function woocommerce_coupon_key_render()
+    {
+        $options = get_option('fi_settings'); ?>
+            <input type="password"
+            name="fi_settings[woocommerce_coupon_key]"
+            value="<?php echo isset($options['woocommerce_coupon_key']) ? $options['woocommerce_coupon_key'] : ''; ?>">
+            <?php
+    }
+
+    public function woocommerce_coupon_code_render()
+    {
+        $options = get_option('fi_settings');
+        if (!wc_get_coupon_id_by_code($options['woocommerce_coupon_code'])) {
+            $options['woocommerce_coupon_code'] = '';
+        }
+
+         ?>
+            <input type="text"
+            name="fi_settings[woocommerce_coupon_code]"
+            value="<?php echo isset($options['woocommerce_coupon_code']) ? $options['woocommerce_coupon_code'] : ''; ?>">
             <?php
     }
 }
