@@ -215,7 +215,9 @@ class FI_Plugin
                 return ($key[0] !== '_');
             }, ARRAY_FILTER_USE_KEY);
             $meta = array_map(function($value) {
-                if (is_array($value)) return $value[0];
+                if (is_array($value)) return maybe_unserialize($value[0]);
+
+                return maybe_unserialize($value);
             }, $meta);
 
             $meta['date_expires'] = $date->getTimestamp();
