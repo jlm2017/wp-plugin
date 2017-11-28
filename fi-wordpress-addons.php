@@ -103,7 +103,7 @@ class FI_Plugin
             if (strpos($response['body'], 'email')) {
                 $jlm2017_form_signup_errors['email'] = 'Adresse email déjà existante dans la base de donnée.';
             } else {
-                error_log('422 error while POSTing '.$body.' to API');
+                error_log('422 error while POSTing to API : '.$response['body']);
                 $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
             }
 
