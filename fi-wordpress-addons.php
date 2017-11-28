@@ -88,7 +88,7 @@ class FI_Plugin
 
         $options = get_option('fi_settings');
 
-        $url = 'https://api.lafranceinsoumise.fr/legacy/people/subscribe';
+        $url = 'https://api.lafranceinsoumise.fr/legacy/people/subscribe/';
 
         $response = wp_remote_post($url, [
             'headers' => [
@@ -106,8 +106,8 @@ class FI_Plugin
             return;
         }
 
-        if (is_wp_error($response) || !in_array($response['response']['code'], [422, 201])) {
-            error_log('Error while POSTing new user to API : '.$response->get_error_code());
+        if (is_wp_error($response) || $response['response']['code'] !== 201) {
+            error_log('Error while POSTing new user to API.');
             $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
 
             return;
