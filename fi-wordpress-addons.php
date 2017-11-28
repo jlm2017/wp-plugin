@@ -107,7 +107,7 @@ class FI_Plugin
         }
 
         if (is_wp_error($response) || !in_array($response['response']['code'], [422, 201])) {
-            error_log('Error while POSTing new user to API : '.$response['body']);
+            error_log('Error while POSTing new user to API : '.$response->get_error_code());
             $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
 
             return;
