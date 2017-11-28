@@ -90,17 +90,21 @@ class FI_Plugin
 
         $url = 'https://api.lafranceinsoumise.fr/legacy/people/subscribe/';
 
+        $body = '{"email":"'.$jlm2017_form_signup_email.'", "location":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}';
         $response = wp_remote_post($url, [
             'headers' => [
                 'Content-type' => 'application/json',
                 'Authorization' => 'Basic '.base64_encode($options['api_id'].':'.$options['api_key']),
             ],
-            'body' => '{"email":"'.$jlm2017_form_signup_email.'", "location":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}',
+            'body' => $body
         ]);
 
         if (!is_wp_error($response) && $response['response']['code'] === 422) {
             if (strpos($response['body'], 'email')) {
                 $jlm2017_form_signup_errors['email'] = 'Adresse email déjà existante dans la base de donnée.';
+            } else {
+                error_log('422 error while POSTing '.$body.' to API');
+                $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
             }
 
             return;
