@@ -13,6 +13,8 @@ $jlm2017_form_errors = '';
 $jlm2017_form_signup_email = '';
 $jlm2017_form_signup_zipcode = '';
 
+require_once dirname(__FILE__).'/includes/registration-widget.php';
+
 class FI_Plugin
 {
     /**
@@ -21,7 +23,7 @@ class FI_Plugin
     public function __construct()
     {
         add_action('init', [$this, 'handle_registration_form']);
-
+        add_action('init', [$this, 'register_widgets']);
         add_action('init', [$this, 'admin_init']);
 
         // Woocommerce
@@ -35,6 +37,11 @@ class FI_Plugin
 
         // Check code
         add_action('woocommerce_coupon_code', [$this, 'check_coupon_code'], 20);
+    }
+
+    public function register_widgets()
+    {
+        register_widget('FI_Registration_Widget');
     }
 
     public function admin_init()
