@@ -38,7 +38,7 @@ class FI_Plugin_Admin
 
     public function settings_init()
     {
-        register_setting('fi_settings_page', 'fi_settings');
+        register_setting('fi_settings_page', 'fi_settings', [$this, 'sanitize']);
 
         add_settings_section(
             'fi_api_section',
@@ -60,6 +60,16 @@ class FI_Plugin_Admin
             [$this, 'woocommerce_callback'],
             'fi_settings_page'
         );
+    }
+
+    public function sanitize($data)
+    {
+        $old = get_option('fi_settings');
+
+        $data['api_key'] = $data['api_key'] !== '' ? $data['api_key'] : $old['api_key'];
+        $data['woocommerce_coupon_key'] = $data['woocommerce_coupon_key'] !== '' ? $data['woocommerce_coupon_key'] : $old['woocommerce_coupon_key'];
+
+        return $data;
     }
 
     public function api_section_callback()
@@ -143,12 +153,16 @@ class FI_Plugin_Admin
         $options = get_option('fi_settings'); ?>
 
         <input type="password"
-            name="fi_settings[api_key]"
-            value="<?= isset($options['api_key']) ? $options['api_key'] : ''; ?>">
+            name="fi_settings[api_key]">
 
         <?php
         try {
             $options = get_option('fi_settings');
+
+            if (!is_array($options)) {
+                return;
+            }
+
             $url = 'https://api.lafranceinsoumise.fr/legacy/people/';
             $response = wp_remote_get($url, [
                 'timeout' => 300,
@@ -209,15 +223,14 @@ class FI_Plugin_Admin
     {
         $options = get_option('fi_settings'); ?>
             <input type="password"
-            name="fi_settings[woocommerce_coupon_key]"
-            value="<?php echo isset($options['woocommerce_coupon_key']) ? $options['woocommerce_coupon_key'] : ''; ?>">
+            name="fi_settings[woocommerce_coupon_key]">
             <?php
     }
 
     public function woocommerce_coupon_code_render()
     {
         $options = get_option('fi_settings');
-        if (!wc_get_coupon_id_by_code($options['woocommerce_coupon_code'])) {
+        if (is_array($options) && !wc_get_coupon_id_by_code($options['woocommerce_coupon_code'])) {
             $options['woocommerce_coupon_code'] = '';
         }
 
