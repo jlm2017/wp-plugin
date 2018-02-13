@@ -29,8 +29,11 @@ class FI_Plugin
         // Woocommerce
         add_action('woocommerce_loaded',[$this, 'remove_woocommerce_filters']);
 
+        // When status goes from pending to processing
+        add_action('woocommerce_order_status_pending_to_processing', [$this, 'hold_not_shipping_orders']);
+
         // When status got completed
-        add_action('woocommerce_order_status_completed', [$this, 'on_order_completed'], 10, 2);
+        add_action('woocommerce_order_status_completed', [$this, 'tag_completed_orders'], 10, 2);
 
         // When itemm is added
         add_action('woocommerce_check_cart_items', [$this, 'check_cart_weight']);
@@ -132,11 +135,25 @@ class FI_Plugin
     }
 
     /**
+     * When an order is paid, change its status to onhold if it must not be shipped
+     *
+     * @param  WC_Order $order_id
+     */
+    public function hold_not_shipping_orders($order_id)
+    {
+        $order = wc_get_order($order_id);
+        if ($order->has_shipping_method('local_pickup')) {
+            $order->set_status('on-hold');
+            $order->save();
+        }
+    }
+
+    /**
      * When order status change to completed.
      *
      * @param WC_Order $order
      */
-    public function on_order_completed($order_id)
+    public function tag_completed_orders($order_id)
     {
         $options = get_option('fi_settings');
         $order = wc_get_order($order_id);
