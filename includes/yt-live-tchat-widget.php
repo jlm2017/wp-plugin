@@ -1,9 +1,5 @@
 <?php
 
-$jlm2017_form_errors = '';
-$jlm2017_form_signup_email = '';
-$jlm2017_form_signup_zipcode = '';
-
 class FI_YT_Live_Tchat_Widget extends WP_Widget {
     function __construct()
     {

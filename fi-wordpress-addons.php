@@ -15,6 +15,7 @@ $jlm2017_form_signup_zipcode = '';
 
 require_once dirname(__FILE__).'/includes/registration-widget.php';
 require_once dirname(__FILE__).'/includes/yt-live-tchat-widget.php';
+require_once dirname(__FILE__).'/includes/share-bar-widget.php';
 
 class FI_Plugin
 {
@@ -47,6 +48,7 @@ class FI_Plugin
     {
         register_widget('FI_Registration_Widget');
         register_widget('FI_YT_Live_Tchat_Widget');
+        register_widget('FI_Share_Bar');
     }
 
     public function admin_init()
