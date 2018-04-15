@@ -109,6 +109,7 @@ class FI_Plugin
             'headers' => [
                 'Content-type' => 'application/json',
                 'Authorization' => 'Basic '.base64_encode($options['api_id'].':'.$options['api_key']),
+                'X-Wordpress-Client' => $_SERVER['REMOTE_ADDR']
             ],
             'body' => $body
         ]);
