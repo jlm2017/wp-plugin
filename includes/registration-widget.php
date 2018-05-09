@@ -20,7 +20,7 @@ class FI_Registration_Widget extends WP_Widget {
         global $jlm2017_form_signup_email;
         global $jlm2017_form_signup_zipcode;
         ?>
-        <div class="fi-registration-widget">  
+        <div class="fi-registration-widget">
           <h3 class="text-center">Je rejoins la France Insoumise</h3>
           <div class="row">
             <form method="POST" action="">
@@ -50,7 +50,8 @@ class FI_Registration_Widget extends WP_Widget {
                 </div>
               </div>
               <div class="col-xs-12">
-                <p>Je recevrai des informations de la France Insoumise</p>
+                <p>En remplissant ce formulaire, j'accepte que la France Insoumise utilise ces données
+                  pour m'envoyer des informations.</p>
                 <p class="text-right">
                   <small>Si vous habitez à l'étranger, <a href="http://www.jlm2017.fr/inscription">cliquez ici</a>.</small>
                 </p>
