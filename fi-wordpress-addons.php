@@ -104,7 +104,7 @@ class FI_Plugin
 
         $url = 'https://api.lafranceinsoumise.fr/legacy/people/subscribe/';
 
-        $body = '{"email":"'.$jlm2017_form_signup_email.'", "location":{"zip":"'.$jlm2017_form_signup_zipcode.'"}}';
+        $body = '{"email":"'.$jlm2017_form_signup_email.'", "location_zip":"'.$jlm2017_form_signup_zipcode.'"}';
         $response = wp_remote_post($url, [
             'headers' => [
                 'Content-type' => 'application/json',
