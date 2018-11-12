@@ -57,7 +57,7 @@ class FI_Plugin_Admin
         add_settings_section(
             'fi_woocommerce_section',
             __('Woocommerce', 'FI'),
-            [$this, 'woocommerce_callback'],
+            [$this, 'woocommerce_section_callback'],
             'fi_settings_page'
         );
     }
@@ -110,8 +110,18 @@ class FI_Plugin_Admin
         );
     }
 
-    public function woocommerce_callback()
+    public function woocommerce_section_callback()
     {
+        if (!class_exists('WooCommerce')) {
+          ?>
+          <p>
+            WooCommerce n'est pas activé.
+          </p>
+          <?php
+
+          return;
+        }
+
         add_settings_field(
             'fi_woocommerce_notify_tag',
             __('Tag à donner lors de la complétion d\'une commande', 'FI'),
