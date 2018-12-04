@@ -153,7 +153,7 @@ class FI_Plugin_Admin
 
         <input type="text"
             name="fi_settings[api_id]"
-            value="<?= isset($options['api_id']) ? $options['api_id'] : ''; ?>">
+            value="<?= isset($options['api_id']) ? esc_attr($options['api_id']) : ''; ?>">
 
         <?php
     }
@@ -205,7 +205,7 @@ class FI_Plugin_Admin
         $options = get_option('fi_settings'); ?>
         <input type="text"
             name="fi_settings[registration_redirect_url]"
-            value="<?= isset($options['registration_redirect_url']) ? $options['registration_redirect_url'] : ''; ?>">
+            value="<?= isset($options['registration_redirect_url']) ? esc_attr($options['registration_redirect_url']) : ''; ?>">
         <?php
 
     }
@@ -215,7 +215,7 @@ class FI_Plugin_Admin
         $options = get_option('fi_settings'); ?>
         <input type="text"
             name="fi_settings[registration_mail_url]"
-            value="<?= isset($options['registration_mail_url']) ? $options['registration_mail_url'] : ''; ?>">
+            value="<?= isset($options['registration_mail_url']) ? esc_attr($options['registration_mail_url']) : ''; ?>">
         <?php
 
     }
@@ -225,7 +225,7 @@ class FI_Plugin_Admin
         $options = get_option('fi_settings'); ?>
             <input type="text"
             name="fi_settings[woocommerce_notify_tag]"
-            value="<?php echo isset($options['woocommerce_notify_tag']) ? $options['woocommerce_notify_tag'] : ''; ?>">
+            value="<?php echo isset($options['woocommerce_notify_tag']) ? esc_attr($options['woocommerce_notify_tag']) : ''; ?>">
             <?php
     }
 
@@ -247,7 +247,7 @@ class FI_Plugin_Admin
          ?>
             <input type="text"
             name="fi_settings[woocommerce_coupon_code]"
-            value="<?php echo isset($options['woocommerce_coupon_code']) ? $options['woocommerce_coupon_code'] : ''; ?>">
+            value="<?php echo isset($options['woocommerce_coupon_code']) ? esc_attr($options['woocommerce_coupon_code']) : ''; ?>">
             <?php
     }
 }

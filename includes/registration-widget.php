@@ -25,24 +25,24 @@ class FI_Registration_Widget extends WP_Widget {
           <div class="row">
             <form method="POST" action="">
                <?php if (isset($jlm2017_form_signup_errors['form'])) {
-                echo '<p>'.$jlm2017_form_signup_errors['form'].'</p>';
+                echo '<p>'.esc_html($jlm2017_form_signup_errors['form']).'</p>';
                } ?>
               <div class="form-group">
                 <input type="hidden" name="action" value="jlm2017_signup_form">
               </div>
               <div class="col-sm-12 form-group <?= isset($jlm2017_form_signup_errors['email']) ? 'has-error has-feedback' : ''; ?>">
-                <input required class="form-control input-lg" id="signup_email" name="jlm2017_form_signup_email" value="<?=   $jlm2017_form_signup_email ?>" placeholder="Adresse email" type="email" />
+                <input required class="form-control input-lg" id="signup_email" name="jlm2017_form_signup_email" value="<?= esc_attr($jlm2017_form_signup_email) ?>" placeholder="Adresse email" type="email" />
                 <?php if (isset($jlm2017_form_signup_errors['email'])) { ?>
-                  <i class="fa fa-exclamation-triangle" aria-hidden="true" style="float: right; margin-top: -33px; margin-right:   10px; color: red;"></i>
-                  <span class="help-block"><?= $jlm2017_form_signup_errors['email'] ?></span>
+                  <i class="fa fa-exclamation-triangle" aria-hidden="true" style="float: right; margin-top: -33px; margin-right: 10px; color: red;"></i>
+                  <span class="help-block"><?= esc_html($jlm2017_form_signup_errors['email']) ?></span>
                 <?php } ?>
               </div>
               <div class="form-group">
                 <div class="col-sm-6 form-group <?= isset($jlm2017_form_signup_errors['zipcode']) ? 'has-error has-feedback' : '';   ?>">
-                  <input required class="form-control input-lg" id="signup_address_zip" name="jlm2017_form_signup_zipcode"    value="<?= $jlm2017_form_signup_zipcode ?>" placeholder="Code Postal" type="text" />
+                  <input required class="form-control input-lg" id="signup_address_zip" name="jlm2017_form_signup_zipcode" value="<?= esc_attr($jlm2017_form_signup_zipcode) ?>" placeholder="Code Postal" type="text" />
                   <?php if (isset($jlm2017_form_signup_errors['zipcode'])) { ?>
-                    <i class="fa fa-exclamation-triangle" aria-hidden="true" style="float: right; margin-top: -33px; margin-right:   10px; color: red;"></i>
-                    <span class="help-block"><?= $jlm2017_form_signup_errors['zipcode'] ?></span>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true" style="float: right; margin-top: -33px; margin-right: 10px; color: red;"></i>
+                    <span class="help-block"><?= esc_html($jlm2017_form_signup_errors['zipcode']) ?></span>
                   <?php } ?>
                 </div>
                 <div class="col-sm-6">
@@ -53,7 +53,7 @@ class FI_Registration_Widget extends WP_Widget {
                 <p>En remplissant ce formulaire, j'accepte que la France Insoumise utilise ces données
                   pour m'envoyer des informations.</p>
                 <p class="text-right">
-                  <small>Si vous habitez à l'étranger, <a href="http://www.jlm2017.fr/inscription">cliquez ici</a>.</small>
+                  <small>Si vous habitez à l'étranger, <a href="https://agir.lafranceinsoumise.fr/inscription/etranger/">cliquez ici</a>.</small>
                 </p>
               </div>
             </form>

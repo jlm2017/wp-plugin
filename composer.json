@@ -9,7 +9,7 @@
     "wordpress",
     "plugin"
   ],
-  "homepage": "https://github.com/jlm2017/wp-plugin",
+  "homepage": "https://github.com/lafranceinsoumise/wp-plugin",
   "license": "GPL-3.0",
   "authors": [
     {
@@ -17,7 +17,7 @@
       "email": "fsimondev@gmail.com"
     },
     {
-      "name": "Guillaume Royer",
+      "name": "Jill Royer",
       "email": "site@lafranceinsoumise.fr"
     },
     {
