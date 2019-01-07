@@ -229,7 +229,12 @@ class FI_Plugin
             return $code;
         }
 
-        $bytes = base64_decode(substr($code, 0, 2).'A=');
+        // the expiration date is encoded in the first two chars of our code, using urlsafe base64.
+        // to turn in into 'standard' base64, we need to replace - and _ by + and / and add 'A=' at the end
+        $b64_date = strtr(substr($code, 0, 2), '-_', '+/') . 'A=';
+
+        $bytes = base64_decode($b64_date);
+
         $days = ord($bytes[0]) + ord($bytes[1])*16;
         $date = (new Datetime('2017-01-01'))->add(new DateInterval('P'.$days.'D'));
 
