@@ -1,8 +1,9 @@
 <?php
 /*
     Plugin Name: FI Addons
-    Description: Fonctionnalités spécifiques à la FI
-    Author: Guillaume Royer, Florian Simon
+
+    Description: Fonctionnalités spécifiques à la FI. Dépend d'Elementor.
+    Author: Jill Royer, Florian Simon
     License: GPL-3.0
 */
 
@@ -27,6 +28,7 @@ class FI_Plugin
         add_action('init', [$this, 'handle_registration_form']);
         add_action('init', [$this, 'register_widgets']);
         add_action('init', [$this, 'admin_init']);
+        add_action( 'elementor_pro/init', [$this, 'register_elementor_addons']);
 
         // Woocommerce
         add_action('woocommerce_loaded',[$this, 'remove_woocommerce_filters']);
@@ -49,6 +51,16 @@ class FI_Plugin
         register_widget('FI_Registration_Widget');
         register_widget('FI_YT_Live_Tchat_Widget');
         register_widget('FI_Share_Bar');
+    }
+
+    public function register_elementor_addons()
+    {
+        require_once dirname(__FILE__).'/includes/registration-handler.php';
+        $elementor_registration_action = new FI_Registration_Action();
+        \ElementorPro\Plugin::instance()
+            ->modules_manager->get_modules( 'forms' )
+            ->add_form_action($elementor_registration_action->get_name(), $elementor_registration_action)
+        ;
     }
 
     public function admin_init()

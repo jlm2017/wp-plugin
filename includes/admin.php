@@ -67,7 +67,7 @@ class FI_Plugin_Admin
         $old = get_option('fi_settings');
 
         $data['api_key'] = $data['api_key'] !== '' ? $data['api_key'] : $old['api_key'];
-        $data['woocommerce_coupon_key'] = $data['woocommerce_coupon_key'] !== '' ? $data['woocommerce_coupon_key'] : $old['woocommerce_coupon_key'];
+        $data['woocommerce_coupon_key'] = isset($data['woocommerce_coupon_key']) && $data['woocommerce_coupon_key'] !== '' ? $data['woocommerce_coupon_key'] : $old['woocommerce_coupon_key'];
 
         return $data;
     }
