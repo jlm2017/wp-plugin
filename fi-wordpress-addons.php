@@ -14,7 +14,6 @@ $jlm2017_form_errors = '';
 $jlm2017_form_signup_email = '';
 $jlm2017_form_signup_zipcode = '';
 
-require_once dirname(__FILE__).'/includes/registration-widget.php';
 require_once dirname(__FILE__).'/includes/yt-live-tchat-widget.php';
 require_once dirname(__FILE__).'/includes/share-bar-widget.php';
 
@@ -25,7 +24,6 @@ class FI_Plugin
      */
     public function __construct()
     {
-        add_action('init', [$this, 'handle_registration_form']);
         add_action('init', [$this, 'register_widgets']);
         add_action('init', [$this, 'admin_init']);
         add_action( 'elementor_pro/init', [$this, 'register_elementor_addons']);
@@ -48,7 +46,6 @@ class FI_Plugin
 
     public function register_widgets()
     {
-        register_widget('FI_Registration_Widget');
         register_widget('FI_YT_Live_Tchat_Widget');
         register_widget('FI_Share_Bar');
     }
@@ -74,91 +71,6 @@ class FI_Plugin
     {
         // Make Woocommerce code case sensitive
         remove_filter('woocommerce_coupon_code', 'wc_strtolower');
-    }
-
-    public function handle_registration_form()
-    {
-        global $jlm2017_form_signup_errors;
-        global $jlm2017_form_signup_email;
-        global $jlm2017_form_signup_zipcode;
-
-        $jlm2017_form_signup_errors = array();
-
-        // Form validation
-        if (!isset($_REQUEST['action']) || $_REQUEST['action'] !== 'jlm2017_signup_form') {
-            return;
-        }
-
-        if (!isset($_REQUEST['jlm2017_form_signup_email'])) {
-            $jlm2017_form_signup_errors['email'] = 'L\'email est obligatoire.';
-        }
-
-        if (isset($_REQUEST['jlm2017_form_signup_email']) && !is_email($_REQUEST['jlm2017_form_signup_email'])) {
-            $jlm2017_form_signup_errors['email'] = 'Email invalide.';
-        }
-
-        if (!isset($_REQUEST['jlm2017_form_signup_zipcode'])) {
-            $jlm2017_form_signup_errors['zipcode'] = 'Le code postal est obligatoire.';
-        }
-
-        if (isset($_REQUEST['jlm2017_form_signup_zipcode']) && !preg_match('/^[0-9]{5}$/', $_REQUEST['jlm2017_form_signup_zipcode'])) {
-            $jlm2017_form_signup_errors['zipcode'] = 'Code postal invalide.';
-        }
-
-        if (count($jlm2017_form_signup_errors) > 0) {
-            return;
-        }
-
-        $jlm2017_form_signup_email = isset($_REQUEST['jlm2017_form_signup_email']) ? sanitize_email($_REQUEST['jlm2017_form_signup_email']) : '';
-        $jlm2017_form_signup_zipcode = isset($_REQUEST['jlm2017_form_signup_zipcode']) ? sanitize_text_field($_REQUEST['jlm2017_form_signup_zipcode']) : '';
-
-        $options = get_option('fi_settings');
-
-        $url = 'https://api.lafranceinsoumise.fr/legacy/people/subscribe/';
-
-        $body = '{"email":"'.$jlm2017_form_signup_email.'", "location_zip":"'.$jlm2017_form_signup_zipcode.'"}';
-        $response = wp_remote_post($url, [
-            'headers' => [
-                'Content-type' => 'application/json',
-                'Authorization' => 'Basic '.base64_encode($options['api_id'].':'.$options['api_key']),
-                'X-Wordpress-Client' => $_SERVER['REMOTE_ADDR']
-            ],
-            'body' => $body
-        ]);
-
-        if (!is_wp_error($response) && $response['response']['code'] === 422) {
-            error_log('422 error while POSTing to API : '.$response['body']);
-            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
-
-            return;
-        }
-
-        if (is_wp_error($response) || $response['response']['code'] !== 201) {
-            error_log('Error while POSTing new user to API.');
-            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
-
-            return;
-        }
-
-        if (wp_redirect($options['registration_redirect_url'])) {
-            exit();
-        } else {
-            $jlm2017_form_signup_errors['form'] = 'Oups, une erreur est survenue, veuillez réessayer plus tard&nbsp;!';
-        }
-    }
-
-    /**
-     * When an order is paid, change its status to onhold if it must not be shipped
-     *
-     * @param  WC_Order $order_id
-     */
-    public function hold_not_shipping_orders($order_id)
-    {
-        $order = wc_get_order($order_id);
-        if ($order->has_shipping_method('local_pickup')) {
-            $order->set_status('on-hold');
-            $order->save();
-        }
     }
 
     /**
