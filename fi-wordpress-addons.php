@@ -10,9 +10,6 @@
 /**
  * Class FI_Plugin.
  */
-$jlm2017_form_errors = '';
-$jlm2017_form_signup_email = '';
-$jlm2017_form_signup_zipcode = '';
 
 require_once dirname(__FILE__).'/includes/yt-live-tchat-widget.php';
 require_once dirname(__FILE__).'/includes/share-bar-widget.php';
